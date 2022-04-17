@@ -12,26 +12,26 @@ type ConstBlock struct {
 	blockNotePos int
 }
 
-func NewConstBlock() *ConstBlock {
-	return &ConstBlock{blockNotePos: BlockAbove}
+func NewConstBlock() ConstBlock {
+	return ConstBlock{blockNotePos: BlockAbove}
 }
 
-func (cb *ConstBlock) SetBlockNote(note string) *ConstBlock {
+func (cb ConstBlock) SetBlockNote(note string) ConstBlock {
 	cb.blockNote = note
 	return cb
 }
 
-func (cb *ConstBlock) SetBlockNotePos(notePos int) *ConstBlock {
+func (cb ConstBlock) SetBlockNotePos(notePos int) ConstBlock {
 	cb.blockNotePos = notePos
 	return cb
 }
 
-func (cb *ConstBlock) AddConstOne(one ConstOne) *ConstBlock {
-	cb.manyConst = append(cb.manyConst, one)
+func (cb ConstBlock) AddConstOne(one ...ConstOne) ConstBlock {
+	cb.manyConst = append(cb.manyConst, one...)
 	return cb
 }
 
-func (cb *ConstBlock) WriteBlock() string {
+func (cb ConstBlock) WriteBlock() string {
 	var block string
 	block += "\n"
 	if cb.blockNote != "" && cb.blockNotePos == BlockAbove {

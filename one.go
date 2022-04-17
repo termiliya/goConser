@@ -8,36 +8,43 @@ const (
 )
 
 type ConstOne struct {
-	constName   string
-	constValue  interface{}
-	annotate    string
-	annotatePos int
+	ConstName   string
+	ConstValue  interface{}
+	Annotate    string
+	AnnotatePos int
 }
 
 func NewConstOne(name string, value interface{}) ConstOne {
-	return ConstOne{constName: name, constValue: value, annotate: "", annotatePos: OneBehind}
+	return ConstOne{ConstName: name, ConstValue: value, Annotate: "", AnnotatePos: OneBehind}
 }
 
 func (c ConstOne) SetAnnotate(at string) ConstOne {
-	c.annotate = at
+	c.Annotate = at
 	return c
 }
 
 func (c ConstOne) SetAnnotatePos(atp int) ConstOne {
-	c.annotatePos = atp
+	c.AnnotatePos = atp
 	return c
 }
 
 func (c ConstOne) WriteOne() string {
 	var one string
-	if c.annotate == "" {
-		one = fmt.Sprintf("%s = %v", c.constName, c.constValue)
+	var value interface{}
+	switch c.ConstValue.(type) {
+	case string:
+		value = "\"" + c.ConstValue.(string) + "\""
+	default:
+		value = c.ConstValue
+	}
+	if c.Annotate == "" {
+		one = fmt.Sprintf("%s = %v", c.ConstName, value)
 	} else {
-		one = fmt.Sprintf("// %s", c.annotate)
-		if c.annotatePos == OneAbove {
-			one = fmt.Sprintf("%s\n%s = %v", one, c.constName, c.constValue)
+		one = fmt.Sprintf("// %s", c.Annotate)
+		if c.AnnotatePos == OneAbove {
+			one = fmt.Sprintf("%s\n%s = %v", one, c.ConstName, value)
 		} else {
-			one = fmt.Sprintf("%s = %v %s", c.constName, c.constValue, one)
+			one = fmt.Sprintf("%s = %v %s", c.ConstName, value, one)
 		}
 	}
 	one += "\n"

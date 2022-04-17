@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 )
 
 const (
@@ -13,6 +14,7 @@ const (
 )
 
 type Const2File struct {
+	saveDir     string
 	savePath    string
 	packageName string
 	flag        int
@@ -20,16 +22,16 @@ type Const2File struct {
 }
 
 func NewConst2File() *Const2File {
-	return &Const2File{flag: FileCreate, blocks: make([]ConstBlock, 0)}
+	return &Const2File{saveDir: "./", flag: FileCreate, blocks: make([]ConstBlock, 0)}
 }
 
-func (cf *Const2File) SetFlagAppend() *Const2File {
-	cf.flag = FileAppend
+func (cf *Const2File) SetSaveDir(dir string) *Const2File {
+	cf.saveDir = dir
 	return cf
 }
 
-func (cf *Const2File) SetSavePath(path string) *Const2File {
-	cf.savePath = path
+func (cf *Const2File) SetSaveFile(fileName string) *Const2File {
+	cf.savePath = path.Join(cf.saveDir, fileName)
 	return cf
 }
 
@@ -38,13 +40,18 @@ func (cf *Const2File) SetPackageName(pkgName string) *Const2File {
 	return cf
 }
 
+func (cf *Const2File) SetFlagAppend() *Const2File {
+	cf.flag = FileAppend
+	return cf
+}
+
 func (cf *Const2File) SetFlag(flag int) *Const2File {
 	cf.flag = flag
 	return cf
 }
 
-func (cf *Const2File) AddConstBlock(block ConstBlock) *Const2File {
-	cf.blocks = append(cf.blocks, block)
+func (cf *Const2File) AddConstBlock(block ...ConstBlock) *Const2File {
+	cf.blocks = append(cf.blocks, block...)
 	return cf
 }
 
@@ -62,6 +69,10 @@ func (cf *Const2File) Run() error {
 		f   *os.File
 		err error
 	)
+	err = cf.ifNotExistDirCreate()
+	if err != nil {
+		return nil
+	}
 	if cf.flag == FileCreate {
 		if f, err = os.Create(cf.savePath); err != nil {
 			return err
@@ -87,4 +98,19 @@ func (cf *Const2File) buildBody() string {
 		body += block.WriteBlock()
 	}
 	return body
+}
+
+func (cf *Const2File) ifNotExistDirCreate() error {
+	_, err := os.Stat(cf.saveDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = os.Mkdir(cf.saveDir, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
 }
